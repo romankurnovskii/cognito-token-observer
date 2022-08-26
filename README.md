@@ -27,7 +27,7 @@ import { CognitoAuthObserver } from 'cognito-token-observer'
 
 
 // get code after signin/up to aws cognito
-const getCodeFromBrwoser = () =>{
+const getCodeFromBrowser = () =>{
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     const code = params['code'];
@@ -62,5 +62,5 @@ cognitoAuthorizer.onTokenUpdate(onTokenUpdate);
 [npm-url]: https://www.npmjs.com/package/cognito-token-observer
 [npm-image]: https://img.shields.io/npm/v/cognito-token-observer
 [github-license]: https://img.shields.io/github/license/romankurnovskii/cognito-token-observer
-[github-license-url]: https://github.com/romankurnovskii/cognito-token-observer/blob/master/LICENSE
+[github-license-url]: https://github.com/romankurnovskii/cognito-token-observer/blob/main/LICENSE
 [npm-typescript]: https://img.shields.io/npm/types/cognito-token-observer

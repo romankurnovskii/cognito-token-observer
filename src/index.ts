@@ -39,9 +39,9 @@ export class CognitoAuthObserver {
 	private accessToken: string | null = null;
 	private idToken: string | null = null;
 	private refreshToken: string | null = null;
-	private userData: UserDataType = { exp: 0 };
 	private oldAccessToken: string | null = null;
 	private debugMode = false;
+	userData: UserDataType = { exp: 0 };
 
 	constructor(properties: CognitoObserverInitType) {
 		this.clientId = properties.clientId;
@@ -65,25 +65,31 @@ export class CognitoAuthObserver {
 	};
 
 	init = async (code?: string) => {
-		if (code) {
-			return await this.fetchCognitoTokens(code);
-		}
-		this.isValid = false;
+		this.monitorTokenStatus();
 		const hasLocalTokens = this.loadLocalTokens();
 		if (hasLocalTokens && this.accessToken && this.idToken) {
-			this.isValid =
-				(await this.verifyToken(this.accessToken, 'access')) ===
-				(await this.verifyToken(this.idToken, 'id'));
-			if (!this.isValid) {
-				console.log('Need to update tokens');
+			const verifyResultAccessToken = await this.verifyToken(
+				this.accessToken,
+				'access'
+			);
+			const verifyResultIdToken = await this.verifyToken(this.idToken, 'id');
+
+			if (verifyResultIdToken['isValid']) {
+				this.isValid = true;
+				this.saveTokensToLocal();
+				this.logger('log', 'Tokens are valid');
+			} else {
+				this.logger('log', 'Need to update tokens');
 				this.refreshTokens().catch(e => {
 					this.logger('error', e);
 				});
-			} else {
-				console.log('Tokens are valid');
 			}
 		}
-		this.monitorTokenStatus();
+
+		if (code) {
+			return await this.fetchCognitoTokens(code);
+		}
+
 		return this.isValid;
 	};
 
@@ -125,11 +131,18 @@ export class CognitoAuthObserver {
 			this.accessToken = tokensData.data.access_token as string;
 			this.idToken = tokensData.data.id_token as string;
 			this.refreshToken = tokensData.data.refresh_token as string;
-			return this.verifyToken(this.idToken, 'id');
+			const { isValid, userData } = await this.verifyToken(this.idToken, 'id');
+			if (isValid) {
+				this.isValid = true;
+				this.userData = userData;
+				this.saveTokensToLocal();
+				return true;
+			}
 		} else {
 			console.error('ERROR: Failed to get tokens from Cognito');
 			return false;
 		}
+		return false;
 	};
 
 	saveTokensToLocal = () => {
@@ -137,6 +150,7 @@ export class CognitoAuthObserver {
 			localStorage.setItem(COGNITO_ACCESS_TOKEN_NAME, this.accessToken);
 		}
 		if (this.idToken) {
+			localStorage.removeItem(COGNITO_ID_TOKEN_NAME);
 			localStorage.setItem(COGNITO_ID_TOKEN_NAME, this.idToken);
 		}
 		if (this.refreshToken) {
@@ -161,8 +175,9 @@ export class CognitoAuthObserver {
     expires_in: number
     id_token:  string
     token_type: string
-  }
-  */
+    }
+    */
+		this.logger('log', 'Started refresh tokens');
 		if (this.refreshToken) {
 			const data = {
 				grant_type: 'refresh_token',
@@ -182,8 +197,14 @@ export class CognitoAuthObserver {
 			if (tokensData && tokensData.data?.id_token) {
 				this.accessToken = tokensData.data.access_token;
 				this.idToken = tokensData.data.id_token as string;
-				const verifyResult = await this.verifyToken(this.idToken, 'id');
-				if (verifyResult) {
+				const { isValid, userData } = await this.verifyToken(
+					this.idToken,
+					'id'
+				);
+				if (isValid) {
+					this.isValid = isValid;
+					this.userData = userData;
+					this.saveTokensToLocal();
 					return true;
 				}
 				return false;
@@ -193,6 +214,8 @@ export class CognitoAuthObserver {
 					tokensData
 				);
 			}
+		} else {
+			this.clearTokens();
 		}
 		console.error('ERROR: Failed to refresh tokens from Cognito.');
 		return false;
@@ -201,7 +224,8 @@ export class CognitoAuthObserver {
 	verifyToken = async (
 		token: string,
 		type: 'id' | 'access'
-	): Promise<boolean> => {
+	): Promise<{ isValid: boolean; userData: UserDataType }> => {
+		let isValid = false;
 		try {
 			const verifier = CognitoJwtVerifier.create({
 				userPoolId: this.userPoolId,
@@ -217,14 +241,12 @@ export class CognitoAuthObserver {
 				`https://cognito-idp.${this.region}.amazonaws.com/${this.userPoolId}`;
 			const isTokenUseValid = payload.token_use === type;
 
-			const isValid = isNotExpired && isCorrectUserPool && isTokenUseValid;
+			isValid = isNotExpired && isCorrectUserPool && isTokenUseValid;
 
-			this.userData = { ...this.userData, ...payload };
-			this.saveTokensToLocal();
-			return isValid;
+			return { isValid, userData: payload };
 		} catch (e) {
-			console.log('Token not valid!', e);
-			return false;
+			console.log('Token is not valid!', e);
+			return { isValid, userData: { exp: 0 } };
 		}
 	};
 
@@ -299,8 +321,28 @@ export class CognitoAuthObserver {
 				}
 			}
 		};
-
 		window.addEventListener('storage', onStorage);
+
+		const getInterval = () => {
+			let interval = 10000;
+
+			const exp = this.userData.exp;
+			const now = Math.floor(Date.now() / 1000);
+
+			if (exp >= now) {
+				interval = exp - now;
+			}
+			return interval;
+		};
+
+		let interval = getInterval();
+		setInterval(() => {
+			if (this.oldAccessToken !== this.accessToken) {
+				this.oldAccessToken = this.accessToken;
+				callback(this.isValid);
+				interval = getInterval();
+			}
+		}, interval);
 	};
 
 	clearTokens = () => {

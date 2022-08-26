@@ -29,7 +29,8 @@ module.exports = {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unsafe-assignment': 'off',
-    '@typescript-eslint/no-unsafe-member-access': 'off'
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    "@typescript-eslint/explicit-module-boundary-types": "off"
   },
   ignorePatterns: ['*.d.ts', 'index.test.ts']
 };
