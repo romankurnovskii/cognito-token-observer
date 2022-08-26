@@ -13,11 +13,10 @@ const initData = {
 describe('Auth Service', () => {
 	it('verify token is not valid', async () => {
 		const c = new CognitoAuthObserver(initData);
-		expect(
-			await c.verifyToken(
-				'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-				'id'
-			)
-		).toBe(false);
+		const { isValid, userData } = await c.verifyToken(
+			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+			'id'
+		);
+		expect(isValid).toBe(false);
 	});
 });
