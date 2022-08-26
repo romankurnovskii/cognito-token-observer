@@ -2,6 +2,7 @@ import axios from 'axios';
 import qs from 'qs';
 
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
+// eslint-disable-next-line node/no-missing-import
 import { CognitoJwtPayload } from 'aws-jwt-verify/jwt-model';
 
 const SERVER_URL = 'https://cognito-idp.{REGION}.amazonaws.com';
@@ -29,7 +30,7 @@ export type CognitoObserverInitType = {
 	userPoolId: string;
 };
 
-export class CognitoAuthObserver {
+export class CognitoObserver {
 	public isValid = false;
 	private clientId: string;
 	private redirectUrl: string;
@@ -68,10 +69,10 @@ export class CognitoAuthObserver {
 		this.monitorTokenStatus();
 		const hasLocalTokens = this.loadLocalTokens();
 		if (hasLocalTokens && this.accessToken && this.idToken) {
-			const verifyResultAccessToken = await this.verifyToken(
-				this.accessToken,
-				'access'
-			);
+			// const verifyResultAccessToken = await this.verifyToken(
+			// 	this.accessToken,
+			// 	'access'
+			// );
 			const verifyResultIdToken = await this.verifyToken(this.idToken, 'id');
 
 			if (verifyResultIdToken['isValid']) {

@@ -1,6 +1,6 @@
 import 'jest-canvas-mock';
 
-import { CognitoAuthObserver } from '../src';
+import { CognitoObserver } from '../src';
 
 const initData = {
 	clientId: 'string',
@@ -12,7 +12,7 @@ const initData = {
 
 describe('Auth Service', () => {
 	it('verify token is not valid', async () => {
-		const c = new CognitoAuthObserver(initData);
+		const c = new CognitoObserver(initData);
 		const { isValid, userData } = await c.verifyToken(
 			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
 			'id'

@@ -1,16 +1,24 @@
 {
-	"compilerOptions": {
-		"target": "es5",
-		"lib": ["ES2017", "dom"],
-		"module": "commonjs",
-		"removeComments": false,
-		"noImplicitAny": false,
-		"strictNullChecks": true,
-		"sourceMap": false,
-		"outDir": "dist",
-		"declaration": true,
-    "esModuleInterop": true
-	},
 	"include": ["src"],
-	"exclude": ["tests"]
+	"exclude": ["dist", "node_modules"],
+	"compilerOptions": {
+		"module": "es2022",
+		"lib": ["dom", "es2022"],
+		"importHelpers": true,
+		"declaration": true,
+		"declarationDir": "./types",
+		"sourceMap": true,
+		"rootDir": "./src",
+		"outDir": "./dist/esm",
+		"strict": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"moduleResolution": "node",
+		"jsx": "react",
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true
+	}
 }
