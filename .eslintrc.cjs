@@ -31,5 +31,5 @@ module.exports = {
     '@typescript-eslint/no-unsafe-assignment': 'off',
     '@typescript-eslint/no-unsafe-member-access': 'off'
   },
-  ignorePatterns: ['*.d.ts']
+  ignorePatterns: ['*.d.ts', 'index.test.ts']
 };
