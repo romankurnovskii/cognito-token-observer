@@ -18,5 +18,6 @@ describe('Auth Service', () => {
 			'id'
 		);
 		expect(isValid).toBe(false);
+		expect(userData['exp']).toBe(0);
 	});
 });
