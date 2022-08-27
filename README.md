@@ -21,42 +21,49 @@ yarn add cognito-token-observer
 Add `CognitoAuthObserver` to your component:
 
 ```js
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { CognitoAuthObserver } from 'cognito-token-observer'
 
+function App() {
+  const [userData, setUserData] = useState([])
 
-// get code after signin/up to aws cognito
-const getCodeFromBrowser = () =>{
+  const cognitoAuthorizer = CognitoAuthObserver({ // init
+    clientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
+    pullDomain: process.env.REACT_APP_COGNITO_POOL_DOMAIN,
+    redirectUrl: process.env.REACT_APP_COGNITO_REDIRECT_URI,
+    region: process.env.REACT_APP_COGNITO_REGION,
+    userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+  });
+
+  cognitoAuthorizer.onTokenUpdate(() => { // callback on token update
+    setUserData(cognitoAuthorizer.getUserData())
+  }, 'onTokenUpdateKey')
+  
+  const getCodeFromBrowser = () => { 
+    // get code after signin/up to aws cognito 
+    // to pass to cognitoAuthorizer
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     const code = params['code'];
+  }
+
+  const cognitoCode = getCodeFromBrwoser()
+
+  useEffect(() => {
+    cognitoAuthorizer.init(cognitoCode)
+      .then(isAutheticated => {
+        console.log(isAutheticated)
+      })
+  }, [])
+
+  return (
+    <div>
+        {JSON.stringify(userData)}
+    </div>
+  )
+
 }
-
-const cognitoCode = getCodeFromBrwoser()
-
-const cognitoAuthorizer = new CognitoAuthObserver({
-  clientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-  pullDomain: process.env.REACT_APP_COGNITO_POOL_DOMAIN,
-  redirectUrl: process.env.REACT_APP_COGNITO_REDIRECT_URI,
-  region: process.env.REACT_APP_COGNITO_REGION,
-  userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-});
-
-await cognitoAuthorizer.fetchCognitoTokens(cognitoCode)
-
-
-const onTokenUpdate = (isValid: boolean) => {
-const userData = cognitoAuthorizer.getUserData();
-setUserMetadata({
-    ...userData,
-});
-console.log(97, isValid);
-setIsAuthenticated(isValid);
-};
-
-cognitoAuthorizer.onTokenUpdate(onTokenUpdate);
-
 ```
 
 [npm-url]: https://www.npmjs.com/package/cognito-token-observer

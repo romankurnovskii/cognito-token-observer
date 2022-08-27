@@ -9,7 +9,7 @@ export declare type CognitoObserverInitType = {
     region: string;
     userPoolId: string;
 };
-export declare class CognitoObserver {
+declare class CognitoObserver {
     isValid: boolean;
     private clientId;
     private redirectUrl;
@@ -21,9 +21,12 @@ export declare class CognitoObserver {
     private refreshToken;
     private oldAccessToken;
     private debugMode;
-    userData: UserDataType;
+    private userData;
+    private subscribers;
     constructor(properties: CognitoObserverInitType);
     private logger;
+    private getInterval;
+    private notifySubscribers;
     init: (code?: string) => Promise<boolean>;
     getCognitoPublicKeys: () => Promise<[Record<string, any>] | {
         status: boolean;
@@ -48,3 +51,5 @@ export declare class CognitoObserver {
     onTokenUpdate: (callback: (isValid: boolean) => void) => void;
     clearTokens: () => void;
 }
+export declare const CognitoAuthObserver: (properties: CognitoObserverInitType) => CognitoObserver;
+export {};

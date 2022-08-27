@@ -4,5 +4,6 @@
 	"[typescript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
-	"diffEditor.codeLens": true
+	"diffEditor.codeLens": true,
+	"jest.jestCommandLine": "jest"
 }

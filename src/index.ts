@@ -30,7 +30,9 @@ export type CognitoObserverInitType = {
 	userPoolId: string;
 };
 
-export class CognitoObserver {
+type SubscriberType = (isValid: boolean) => any;
+
+class CognitoObserver {
 	public isValid = false;
 	private clientId: string;
 	private redirectUrl: string;
@@ -42,7 +44,8 @@ export class CognitoObserver {
 	private refreshToken: string | null = null;
 	private oldAccessToken: string | null = null;
 	private debugMode = false;
-	userData: UserDataType = { exp: 0 };
+	private userData: UserDataType = { exp: 0 };
+	private subscribers = {} as { [key: string]: SubscriberType };
 
 	constructor(properties: CognitoObserverInitType) {
 		this.clientId = properties.clientId;
@@ -50,12 +53,12 @@ export class CognitoObserver {
 		this.region = properties.region;
 		this.userPoolId = properties.userPoolId;
 		this.cognitoPoolDomain = properties.pullDomain;
-		this.init().catch(e => {
-			this.logger('error', e);
-		});
+		// this.init().catch(e => {
+		// 	this.logger('error', e);
+		// });
 	}
 
-	private logger = (type: 'log' | 'error', message: any) => {
+	private logger = (type: 'log' | 'error', ...message: any[]) => {
 		if (this.debugMode) {
 			if (type === 'log') {
 				console.log(message);
@@ -65,8 +68,30 @@ export class CognitoObserver {
 		}
 	};
 
+	private getInterval = () => {
+		let interval = 2000;
+		const exp = this.userData.exp;
+		const now = Math.floor(Date.now() / 1000);
+		if (exp >= now) {
+			interval = (exp - now) * 1000; // ms * 1000
+		}
+		return interval;
+	};
+
+	private notifySubscribers = () => {
+		console.log(82, this.subscribers);
+
+		const isActive = this.isActive();
+		for (const subscriber of Object.values(this.subscribers)) {
+			try {
+				subscriber(isActive);
+			} catch {
+				continue;
+			}
+		}
+	};
+
 	init = async (code?: string) => {
-		this.monitorTokenStatus();
 		const hasLocalTokens = this.loadLocalTokens();
 		if (hasLocalTokens && this.accessToken && this.idToken) {
 			// const verifyResultAccessToken = await this.verifyToken(
@@ -79,6 +104,7 @@ export class CognitoObserver {
 				this.isValid = true;
 				this.saveTokensToLocal();
 				this.logger('log', 'Tokens are valid');
+				this.notifySubscribers();
 			} else {
 				this.logger('log', 'Need to update tokens');
 				this.refreshTokens().catch(e => {
@@ -88,9 +114,16 @@ export class CognitoObserver {
 		}
 
 		if (code) {
-			return await this.fetchCognitoTokens(code);
+			this.fetchCognitoTokens(code)
+				.then(isUpdated => {
+					if (isUpdated) {
+						this.notifySubscribers();
+					}
+				})
+				.catch(() => false);
 		}
 
+		this.monitorTokenStatus();
 		return this.isValid;
 	};
 
@@ -171,13 +204,6 @@ export class CognitoObserver {
 	};
 
 	refreshTokens = async () => {
-		/* return {
-    access_token: string
-    expires_in: number
-    id_token:  string
-    token_type: string
-    }
-    */
 		this.logger('log', 'Started refresh tokens');
 		if (this.refreshToken) {
 			const data = {
@@ -233,7 +259,6 @@ export class CognitoObserver {
 				tokenUse: type, // id || access,
 				clientId: this.clientId,
 			});
-
 			const payload: CognitoJwtPayload = await verifier.verify(token);
 
 			const isNotExpired = payload.exp > Math.floor(Date.now() / 1000);
@@ -244,6 +269,7 @@ export class CognitoObserver {
 
 			isValid = isNotExpired && isCorrectUserPool && isTokenUseValid;
 
+			this.logger('log', { isValid, userData: payload });
 			return { isValid, userData: payload };
 		} catch (e) {
 			console.log('Token is not valid!', e);
@@ -253,31 +279,47 @@ export class CognitoObserver {
 
 	private monitorTokenStatus = () => {
 		let attempts = 5;
-		let interval = 5 * 1000;
+		const checkToken = () => {
+			clearTimeout(timeoutId);
+			if (attempts > 0) {
+				timeoutId = setTimeout(checkToken, this.getInterval());
+			}
 
-		setInterval(() => {
 			if (this.refreshToken) {
 				const exp = this.userData.exp;
 				const now = Math.floor(Date.now() / 1000);
 				if (exp <= now) {
-					console.log('Token expired. Refreshing...', exp, now);
+					this.logger(
+						'log',
+						'Token expired. Refreshing...',
+						exp,
+						now,
+						this.userData
+					);
 					this.refreshTokens()
-						.then(result => {
-							attempts = result ? 5 : attempts - 1;
+						.then(updated => {
+							if (updated) {
+								attempts = 5;
+								clearTimeout(timeoutId);
+								timeoutId = setTimeout(checkToken, this.getInterval());
+								this.notifySubscribers();
+							} else {
+								attempts--;
+							}
 						})
 						.catch(e => {
 							console.error('Failed to refresh tokens', e);
+							if (attempts <= 0) {
+								this.clearTokens();
+							}
 						});
-					interval = 10 * 1000;
-				} else {
-					//TODO fix is lower that 0
-					interval = exp - now - 1000 * 100;
 				}
+			} else {
+				attempts = 0;
 			}
-			if (attempts === 0) {
-				this.refreshToken = null;
-			}
-		}, interval);
+		};
+
+		let timeoutId = setTimeout(checkToken, this.getInterval());
 	};
 
 	getAccessToken = (): string | null => {
@@ -312,38 +354,47 @@ export class CognitoObserver {
 		return this.userData;
 	};
 
-	onTokenUpdate = (callback: (isValid: boolean) => void) => {
+	onTokenUpdate = (callback: (isValid: boolean) => void, key: string) => {
+		// key need to be uniqe. Used because of reference from react etc
+		// use only unique callbacks
+		this.subscribers[key] = callback;
+
+		// this.notifySubscribers();
+		console.log(353, this.subscribers);
+
 		const onStorage = (e: StorageEvent): void => {
 			console.log('Checking token status...');
 			if (e.storageArea === localStorage && e.key === COGNITO_ID_TOKEN_NAME) {
 				if (this.oldAccessToken !== this.accessToken) {
 					this.oldAccessToken = this.accessToken;
 					callback(this.isValid);
+					this.notifySubscribers();
 				}
 			}
 		};
 		window.addEventListener('storage', onStorage);
 
-		const getInterval = () => {
-			let interval = 10000;
+		// let checkRequests = [] as any[];
+		// const clearCheckRequests = () => {
+		// 	for (const t of checkRequests) {
+		// 		clearTimeout(t);
+		// 	}
+		// 	checkRequests = [];
+		// };
+		// const checkToken = () => {
+		// 	clearCheckRequests();
+		// 	timeoutId = setTimeout(checkToken, this.getInterval());
+		// 	checkRequests.push(timeoutId);
+		// 	console.log(339, this.getInterval());
+		// 	if (this.oldAccessToken !== this.accessToken) {
+		// 		this.oldAccessToken = this.accessToken;
+		// 		callback(this.isValid);
+		// 	}
+		// };
 
-			const exp = this.userData.exp;
-			const now = Math.floor(Date.now() / 1000);
-
-			if (exp >= now) {
-				interval = exp - now;
-			}
-			return interval;
-		};
-
-		let interval = getInterval();
-		setInterval(() => {
-			if (this.oldAccessToken !== this.accessToken) {
-				this.oldAccessToken = this.accessToken;
-				callback(this.isValid);
-				interval = getInterval();
-			}
-		}, interval);
+		// // eslint-disable-next-line @typescript-eslint/no-unused-vars
+		// let timeoutId = setTimeout(checkToken, this.getInterval());
+		// checkRequests.push(timeoutId);
 	};
 
 	clearTokens = () => {
@@ -356,3 +407,15 @@ export class CognitoObserver {
 		localStorage.removeItem(COGNITO_REFRESH_TOKEN_NAME);
 	};
 }
+
+let instance: any;
+
+export const CognitoAuthObserver = (
+	properties: CognitoObserverInitType
+): CognitoObserver => {
+	if (instance) {
+		return instance;
+	}
+	instance = new CognitoObserver(properties);
+	return instance;
+};

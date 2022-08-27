@@ -1,7 +1,7 @@
 {
 	"name": "cognito-token-observer",
-	"version": "0.0.5",
-	"description": "Monitor and update AWS Cognito tokens for current session",
+	"version": "1.0.2",
+	"description": "Monitor and refresh AWS Cognito tokens for current session",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/romankurnovskii/cognito-token-observer/issues"
@@ -25,6 +25,7 @@
 		"build:esm": "tsc",
 		"build:cjs": "tsc --module commonjs --outDir dist/cjs",
 		"lint": "eslint \"{**/*,*}.{ts,tsx}\"",
+		"lint:fix": "eslint --fix",
 		"prettier": "prettier --write \"{src,tests,example/src}/**/*.{js,ts,jsx,tsx}\"",
 		"test": "jest --config jestconfig.json",
 		"prepare": "npm run build",
@@ -40,7 +41,7 @@
 		"@types/qs": "^6.9.7",
 		"@typescript-eslint/eslint-plugin": "^5.35.1",
 		"@typescript-eslint/parser": "^5.35.1",
-		"eslint": "^8.22.0",
+		"eslint": "^8.23.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-prettier": "^4.2.1",
