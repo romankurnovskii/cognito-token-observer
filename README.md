@@ -4,6 +4,14 @@
 ![npm-typescript]
 [![License][github-license]][github-license-url]
 
+
+## About
+
+Monitors 
+## Example:
+
+[React app](https://github.com/romankurnovskii/cognito-token-observer/tree/main/example)
+
 ## Installation:
 
 ```bash
@@ -28,7 +36,7 @@ import { CognitoAuthObserver } from 'cognito-token-observer'
 function App() {
   const [userData, setUserData] = useState([])
 
-  const cognitoAuthorizer = CognitoAuthObserver({ // init
+  const cognitoObserver = CognitoAuthObserver({ // init
     clientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
     pullDomain: process.env.REACT_APP_COGNITO_POOL_DOMAIN,
     redirectUrl: process.env.REACT_APP_COGNITO_REDIRECT_URI,
@@ -36,13 +44,13 @@ function App() {
     userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
   });
 
-  cognitoAuthorizer.onTokenUpdate(() => { // callback on token update
-    setUserData(cognitoAuthorizer.getUserData())
+  cognitoObserver.onTokenUpdate(() => { // callback on token update
+    setUserData(cognitoObserver.getUserData())
   }, 'onTokenUpdateKey')
   
   const getCodeFromBrowser = () => { 
     // get code after signin/up to aws cognito 
-    // to pass to cognitoAuthorizer
+    // to pass to cognitoObserver
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     const code = params['code'];
@@ -51,9 +59,9 @@ function App() {
   const cognitoCode = getCodeFromBrwoser()
 
   useEffect(() => {
-    cognitoAuthorizer.init(cognitoCode)
-      .then(isAutheticated => {
-        console.log(isAutheticated)
+    cognitoObserver.init(cognitoCode)
+      .then(isAuthenticated => {
+        console.log('Token updated:', isAuthenticated)
       })
   }, [])
 
