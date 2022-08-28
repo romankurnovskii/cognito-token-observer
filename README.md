@@ -3,14 +3,14 @@
 [![NPM version][npm-image]][npm-url]
 ![npm-typescript]
 [![License][github-license]][github-license-url]
-
+[![Install size][install-size]][install-size-url]
 
 ## About
 
-Monitors 
+Monitors date expiration of access and id tokens provided by Amazon Cognito. Refershes when expired.
 ## Example:
 
-[React app](https://github.com/romankurnovskii/cognito-token-observer/tree/main/example)
+[React app](example)
 
 ## Installation:
 
@@ -79,3 +79,5 @@ function App() {
 [github-license]: https://img.shields.io/github/license/romankurnovskii/cognito-token-observer
 [github-license-url]: https://github.com/romankurnovskii/cognito-token-observer/blob/main/LICENSE
 [npm-typescript]: https://img.shields.io/npm/types/cognito-token-observer
+[install-size]: https://packagephobia.com/badge?p=cognito-token-observer
+[install-size-url]: https://packagephobia.com/result?p=cognito-token-observer

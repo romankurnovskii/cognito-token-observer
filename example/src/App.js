@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { CognitoAuthObserver } from 'cognito-token-observer';
 
@@ -21,9 +21,11 @@ function App() {
 		userPoolId,
 	});
 
-	cognitoAuthorizer.onTokenUpdate(() => {
-		setUserData(cognitoAuthorizer.getUserData());
-	}, 'onTokenUpdateKey');
+	const onTokenUpdateHandler = useCallback(() => {
+		cognitoAuthorizer.onTokenUpdate(() => {
+			setUserData(cognitoAuthorizer.getUserData());
+		}, 'onTokenUpdateKey');
+	}, []);
 
 	const getCodeFromBrowser = () => {
 		const urlSearchParams = new URLSearchParams(window.location.search);
@@ -38,7 +40,11 @@ function App() {
 		cognitoAuthorizer.init(cognitoCode).then(isAutheticated => {
 			console.log(45, isAutheticated);
 		});
-	}, []);
+	}, [cognitoAuthorizer, cognitoCode]);
+
+	useEffect(() => {
+		onTokenUpdateHandler();
+	}, [onTokenUpdateHandler]);
 
 	return (
 		<div className="container">
