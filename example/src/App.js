@@ -35,10 +35,9 @@ function App() {
 	};
 
 	const cognitoCode = getCodeFromBrowser();
-
 	useEffect(() => {
 		cognitoAuthorizer.init(cognitoCode).then(isAutheticated => {
-			console.log(45, isAutheticated);
+			console.log('User authenticated:', isAutheticated);
 		});
 	}, [cognitoAuthorizer, cognitoCode]);
 

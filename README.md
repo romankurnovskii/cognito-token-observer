@@ -3,12 +3,13 @@
 [![NPM version][npm-image]][npm-url]
 ![npm-typescript]
 [![License][github-license]][github-license-url]
+[![Build status](https://github.com/romankurnovskii/cognito-token-observer/workflows/CI/badge.svg)](https://github.com/romankurnovskii/cognito-token-observer)
 [![Install size][install-size]][install-size-url]
 
 ## About
 
-Monitors date expiration of access and id tokens provided by Amazon Cognito. Refershes when expired.
-## Example:
+Monitors date expiration of access and id tokens provided by Amazon Cognito. Refreshes when expired.
+## Example
 
 [React app](example)
 
@@ -24,7 +25,7 @@ or
 yarn add cognito-token-observer
 ```
 
-## Usage :
+## Usage
 
 Add `CognitoAuthObserver` to your component:
 
@@ -73,6 +74,17 @@ function App() {
 
 }
 ```
+
+## API
+#TODO write description
+- **init(code?: string) => Promise<boolean>**
+CognitoObserver.init: (code?: string | undefined) => Promise<boolean>
+- **isActive()**
+- **onTokenUpdate()**
+- **getAccessToken()**
+- **getIdToken()**
+- **getUserData()**
+- **clearTokens()**
 
 [npm-url]: https://www.npmjs.com/package/cognito-token-observer
 [npm-image]: https://img.shields.io/npm/v/cognito-token-observer
