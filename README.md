@@ -1,5 +1,9 @@
 # cognito-token-observer
 
+<p align="center">
+  <img src="https://github.com/romankurnovskii/cognito-token-observer/raw/main/img/icon.png" alt="cognito-token-observer">
+</p>
+
 [![NPM version][npm-image]][npm-url]
 ![npm-typescript]
 [![License][github-license]][github-license-url]
