@@ -43,7 +43,7 @@ function App() {
 
   const cognitoObserver = CognitoAuthObserver({ // init
     clientId: process.env.REACT_APP_COGNITO_CLIENT_ID,
-    pullDomain: process.env.REACT_APP_COGNITO_POOL_DOMAIN,
+    poolDomain: process.env.REACT_APP_COGNITO_POOL_DOMAIN,
     redirectUrl: process.env.REACT_APP_COGNITO_REDIRECT_URI,
     region: process.env.REACT_APP_COGNITO_REGION,
     userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,

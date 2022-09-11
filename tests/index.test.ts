@@ -4,7 +4,7 @@ import { CognitoAuthObserver } from '../src';
 
 const initData = {
 	clientId: 'string',
-	pullDomain: 'string',
+	poolDomain: 'string',
 	redirectUrl: 'string',
 	region: 'eu-west-1',
 	userPoolId: 'eu-west-1_12345678',

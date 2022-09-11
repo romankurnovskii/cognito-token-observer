@@ -3,19 +3,19 @@ import { useCallback, useEffect, useState } from 'react';
 import { CognitoAuthObserver } from 'cognito-token-observer';
 
 const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID || '';
-const pullDomain = process.env.REACT_APP_COGNITO_POOL_DOMAIN || '';
+const poolDomain = process.env.REACT_APP_COGNITO_POOL_DOMAIN || '';
 const redirectUrl = process.env.REACT_APP_COGNITO_REDIRECT_URI || '';
 const region = process.env.REACT_APP_COGNITO_REGION || '';
 const userPoolId = process.env.REACT_APP_COGNITO_USER_POOL_ID || '';
 
-const LOGIN_COGNITO_URL = `${pullDomain}/login?client_id=${clientId}&response_type=code&redirect_uri=${redirectUrl}`;
+const LOGIN_COGNITO_URL = `${poolDomain}/login?client_id=${clientId}&response_type=code&redirect_uri=${redirectUrl}`;
 
 function App() {
 	const [userData, setUserData] = useState([]);
 
 	const cognitoAuthorizer = CognitoAuthObserver({
 		clientId,
-		pullDomain,
+		poolDomain,
 		redirectUrl,
 		region,
 		userPoolId,

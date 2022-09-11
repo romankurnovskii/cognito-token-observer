@@ -24,7 +24,7 @@ export type UserDataType = {
 
 export type CognitoObserverInitType = {
 	clientId: string;
-	pullDomain: string;
+	poolDomain: string;
 	redirectUrl: string;
 	region: string;
 	userPoolId: string;
@@ -52,7 +52,7 @@ class CognitoObserver {
 		this.redirectUrl = properties.redirectUrl;
 		this.region = properties.region;
 		this.userPoolId = properties.userPoolId;
-		this.cognitoPoolDomain = properties.pullDomain;
+		this.cognitoPoolDomain = properties.poolDomain;
 	}
 
 	private logger = (type: 'log' | 'error', ...message: any[]) => {
