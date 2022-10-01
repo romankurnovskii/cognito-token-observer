@@ -1,6 +1,6 @@
 {
 	"name": "cognito-token-observer",
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"description": "Monitor and refresh AWS Cognito tokens for current session",
 	"license": "MIT",
 	"homepage": "https://github.com/romankurnovskii/cognito-token-observer#readme",

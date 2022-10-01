@@ -13,9 +13,16 @@
 ## About
 
 Monitors date expiration of access and id tokens provided by Amazon Cognito. Refreshes when expired.
+
+### Use case
+
+Authorize users with Amazon Cognito and use result token in 3rd party projects outside AWS.
+
 ## Example
 
 [React app](example)
+
+TODO: demo real project
 
 ## Installation:
 
@@ -55,13 +62,13 @@ function App() {
   
   const getCodeFromBrowser = () => { 
     // get code after signin/up to aws cognito 
-    // to pass to cognitoObserver
+    // then pass to cognitoObserver
     const urlSearchParams = new URLSearchParams(window.location.search);
     const params = Object.fromEntries(urlSearchParams.entries());
     const code = params['code'];
   }
 
-  const cognitoCode = getCodeFromBrwoser()
+  const cognitoCode = getCodeFromBrowser()
 
   useEffect(() => {
     cognitoObserver.init(cognitoCode)
@@ -80,15 +87,15 @@ function App() {
 ```
 
 ## API
-#TODO write description
+
 - **init(code?: string) => Promise<boolean>**
 CognitoObserver.init: (code?: string | undefined) => Promise<boolean>
-- **isActive()**
-- **onTokenUpdate()**
-- **getAccessToken()**
-- **getIdToken()**
-- **getUserData()**
-- **clearTokens()**
+- **isActive()** => boolean
+- **onTokenUpdate(callback, key)** key need to be unique. Used because of reference from react etc
+- **getAccessToken()** => string | null
+- **getIdToken()** => string | null
+- **getUserData()** => userData:UserDataType
+- **clearTokens()** remove localStorage tokens
 
 [npm-url]: https://www.npmjs.com/package/cognito-token-observer
 [npm-image]: https://img.shields.io/npm/v/cognito-token-observer

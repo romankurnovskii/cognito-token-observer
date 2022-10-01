@@ -349,7 +349,7 @@ class CognitoObserver {
 	};
 
 	onTokenUpdate = (callback: (isValid: boolean) => void, key: string) => {
-		// key need to be uniqe. Used because of reference from react etc
+		// key need to be unique. Used because of reference from react etc
 		// use only unique callbacks
 		this.subscribers[key] = callback;
 
