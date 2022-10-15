@@ -1,4 +1,3 @@
-// https://www.typescriptlang.org/tsconfig#module
 {
 	"include": ["src"],
 	"exclude": ["dist", "node_modules"],

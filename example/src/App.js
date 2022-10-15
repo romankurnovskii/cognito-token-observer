@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-
 import { CognitoAuthObserver } from 'cognito-token-observer';
 
 const clientId = process.env.REACT_APP_COGNITO_CLIENT_ID || '';
