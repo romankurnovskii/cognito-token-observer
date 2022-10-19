@@ -154,7 +154,7 @@ class CognitoObserver {
 
 		const options = {
 			method: 'POST',
-			headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 			data: qs.stringify(data),
 			url: this.cognitoPoolDomain + '/oauth2/token',
 		};
@@ -179,30 +179,6 @@ class CognitoObserver {
 		return false;
 	};
 
-	saveTokensToLocal = () => {
-		if (this.accessToken) {
-			localStorage.setItem(COGNITO_ACCESS_TOKEN_NAME, this.accessToken);
-		}
-		if (this.idToken) {
-			localStorage.removeItem(COGNITO_ID_TOKEN_NAME);
-			localStorage.setItem(COGNITO_ID_TOKEN_NAME, this.idToken);
-		}
-		if (this.refreshToken) {
-			localStorage.setItem(COGNITO_REFRESH_TOKEN_NAME, this.refreshToken);
-		}
-	};
-
-	loadLocalTokens = (): boolean => {
-		const { idToken, accessToken, refreshToken } = getTokensFromLocalStorage();
-		if (idToken && accessToken && refreshToken) {
-			this.accessToken = accessToken;
-			this.idToken = idToken;
-			this.refreshToken = refreshToken;
-			return true;
-		}
-		return false;
-	};
-
 	refreshTokens = async () => {
 		this.logger('log', 'Started refresh tokens');
 		if (this.refreshToken) {
@@ -215,7 +191,7 @@ class CognitoObserver {
 
 			const options = {
 				method: 'POST',
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 				data: qs.stringify(data),
 				url: this.cognitoPoolDomain + '/oauth2/token',
 			};
@@ -275,6 +251,30 @@ class CognitoObserver {
 			console.log('Token is not valid!', e);
 			return { isValid, userData: { exp: 0 } };
 		}
+	};
+
+	saveTokensToLocal = () => {
+		if (this.accessToken) {
+			localStorage.setItem(COGNITO_ACCESS_TOKEN_NAME, this.accessToken);
+		}
+		if (this.idToken) {
+			localStorage.removeItem(COGNITO_ID_TOKEN_NAME);
+			localStorage.setItem(COGNITO_ID_TOKEN_NAME, this.idToken);
+		}
+		if (this.refreshToken) {
+			localStorage.setItem(COGNITO_REFRESH_TOKEN_NAME, this.refreshToken);
+		}
+	};
+
+	loadLocalTokens = (): boolean => {
+		const { idToken, accessToken, refreshToken } = getTokensFromLocalStorage();
+		if (idToken && accessToken && refreshToken) {
+			this.accessToken = accessToken;
+			this.idToken = idToken;
+			this.refreshToken = refreshToken;
+			return true;
+		}
+		return false;
 	};
 
 	private monitorTokenStatus = () => {
