@@ -22,7 +22,8 @@ Authorize users with Amazon Cognito and use result token in 3rd party projects o
 
 [React app](example)
 
-TODO: demo real project
+projects:
+- https://www.cloud-exam-prepare.com/
 
 ## Installation:
 
@@ -84,6 +85,36 @@ function App() {
   )
 
 }
+```
+
+
+## Development
+
+In the root package
+
+```
+npm run build
+npm pack
+# will create .tgz file cognito-token-observer-{x.x.x}.tgz
+```
+
+add path in example
+```
+cd example
+```
+
+Open `package.json`
+
+change dependency from 
+
+```
+"cognito-token-observer": "^x.x.x",
+```
+to the path
+
+```
+# in my case version 2.2.2.
+"file:../cognito-token-observer-2.2.2.tgz"
 ```
 
 ## API
