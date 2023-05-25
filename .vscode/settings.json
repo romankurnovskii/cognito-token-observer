@@ -1,9 +1,0 @@
-{
-	"editor.tabCompletion": "on",
-	"editor.formatOnSave": true,
-	"[typescript]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	},
-	"diffEditor.codeLens": true,
-	"jest.jestCommandLine": "jest"
-}
