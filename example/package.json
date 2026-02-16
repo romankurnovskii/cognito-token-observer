@@ -10,7 +10,7 @@
 		"cognito-token-observer": "2.3.2",
 		"nth-check": "^2.1.1",
 		"react": "^19.2.4",
-		"react-dom": "^18.2.0",
+		"react-dom": "^19.2.4",
 		"react-scripts": "^5.0.1"
 	},
 	"scripts": {
